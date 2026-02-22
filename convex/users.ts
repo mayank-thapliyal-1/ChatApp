@@ -15,6 +15,30 @@ export const getByClerkId = query({
 });
 
 /**
+ * List other users for search / new chat. Excludes the given user; optional
+ * search filters by name or email (case-insensitive).
+ */
+export const listOthers = query({
+  args: {
+    excludeUserId: v.id("users"),
+    search: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    let list = await ctx.db.query("users").collect();
+    list = list.filter((u) => u._id !== args.excludeUserId);
+    if (args.search?.trim()) {
+      const term = args.search.trim().toLowerCase();
+      list = list.filter(
+        (u) =>
+          u.name.toLowerCase().includes(term) ||
+          u.email.toLowerCase().includes(term)
+      );
+    }
+    return list;
+  },
+});
+
+/**
  * Upsert user from Clerk webhook or client (name, email, image from Clerk).
  */
 export const upsert = mutation({

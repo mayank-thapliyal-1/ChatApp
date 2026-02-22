@@ -32,7 +32,13 @@ npx convex dev
 
 This links the project and generates `convex/_generated`. Keep it running in a separate terminal while developing.
 
-Set in **Convex Dashboard** (Settings → Environment Variables) the Clerk JWT issuer domain from your Clerk JWT template (e.g. `https://your-app.clerk.accounts.dev`).
+Set in **Convex Dashboard** (Settings → Environment Variables) the Clerk JWT issuer domain from your Clerk JWT template (e.g. `https://your-app.clerk.accounts.dev`). If you get **"Not signed in"** when starting a chat, Convex can’t see your Clerk session: ensure this variable is set and matches your JWT template issuer, then **refresh the page** after sign-in so your profile syncs to the `users` table.
+
+**If you have existing conversations** in Convex, run the one-time backfill so they appear in the list: Convex Dashboard → Functions → `conversations:backfillConversationMembers` (Run), or use your CLI if it supports running internal functions.
+
+When you add a "create conversation" flow, insert into both `conversations` and `conversationMembers` (one row per member) so `listForUser` stays scalable.
+
+**Adding documents in the Convex Data tab:** Use **real ID strings** (copy the `_id` from an existing document), not `v.id("conversations")` or `v.id("users")` — those are schema validators for code only and will cause "Unsupported call expression" in the dashboard. Create documents in order: **users** first (or sign in once), then **conversations**, then **conversationMembers** and **messages** using those IDs.
 
 ### 3. Run locally
 

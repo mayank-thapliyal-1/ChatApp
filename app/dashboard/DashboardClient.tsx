@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatWindow } from "@/components/chat/ChatWindow";
@@ -10,10 +11,10 @@ import { ChatWindow } from "@/components/chat/ChatWindow";
  * responsive visibility (mobile shows list or chat full screen).
  */
 export function DashboardClient() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<Id<"conversations"> | null>(null);
   const [showChat, setShowChat] = useState(false);
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (id: Id<"conversations">) => {
     setSelectedId(id);
     setShowChat(true);
   };

@@ -19,7 +19,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center flex-1 text-center p-6 text-gray-500",
+        "flex flex-col max-w-[75%] items-center justify-center flex-1 text-center p-6 text-gray-500",
         className
       )}
     >

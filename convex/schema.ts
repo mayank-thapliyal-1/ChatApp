@@ -26,6 +26,14 @@ export default defineSchema({
     lastMessageId: v.optional(v.id("messages")),
   }).index("by_member", ["members"]),
 
+  // Junction table for scalable "list conversations for user" (index by userId).
+  conversationMembers: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.id("users"),
+  })
+    .index("by_user", ["userId"])
+    .index("by_conversation", ["conversationId"]),
+
   messages: defineTable({
     conversationId: v.id("conversations"),
     senderId: v.id("users"),
