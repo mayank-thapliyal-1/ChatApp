@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatWindow } from "@/components/chat/ChatWindow";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
 
 /**
  * Client wrapper for dashboard: holds selected conversation id and
@@ -13,7 +16,13 @@ import { ChatWindow } from "@/components/chat/ChatWindow";
 export function DashboardClient() {
   const [selectedId, setSelectedId] = useState<Id<"conversations"> | null>(null);
   const [showChat, setShowChat] = useState(false);
-
+  const setOnlineStatus = useMutation(api.users.setOnlineStatus);
+  useEffect(()=>{
+    const interval = setInterval(()=>{
+        setOnlineStatus();  
+    },20000);
+    return ()=>clearInterval(interval);
+  },[])
   const handleSelect = (id: Id<"conversations">) => {
     setSelectedId(id);
     setShowChat(true);

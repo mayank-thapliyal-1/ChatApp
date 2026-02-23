@@ -13,7 +13,23 @@ export const getByClerkId = query({
       .unique();
   },
 });
+// For Checking user is active or not 
+export const setOnlineStatus = mutation({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
+   console.log("Setting online status for", identity.subject);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!user) return;
 
+    await ctx.db.patch(user._id, {
+      lastSeen: Date.now(),
+    });
+  },
+});
 /**
  * List other users for search / new chat. Excludes the given user; optional
  * search filters by name or email (case-insensitive).

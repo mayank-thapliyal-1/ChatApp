@@ -38,9 +38,16 @@ export default defineSchema({
     conversationId: v.id("conversations"),
     senderId: v.id("users"),
     content: v.string(),
-    createdAt: v.number(),
     isDeleted: v.boolean(),
+reactions: v.optional(
+  v.array(
+    v.object({
+      emojiIndex: v.number(),  // 0 = 👍, 1 = ❤️, etc.
+      userId: v.id("users")   // who reacted
+    })
+  )
+),
+
   })
     .index("by_conversation", ["conversationId"])
-    .index("by_conversation_created", ["conversationId", "createdAt"]),
 });

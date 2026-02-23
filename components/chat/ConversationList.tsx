@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
+import { formatLastSeen } from "../lib/format";
 
 interface ConversationListProps {
   selectedId?: Id<"conversations"> | null;
@@ -45,7 +46,6 @@ export function ConversationList({
   );
   const createDirect = useMutation(api.conversations.createDirectConversation);
   const createGroup = useMutation(api.conversations.createGroupConversation);
-
   const handleStartDirect = async (otherUserId: Id<"users">) => {
     console.log(otherUserId);
     if (!convexUser?._id || !onSelect) return;
@@ -207,6 +207,7 @@ export function ConversationList({
           </div>
         </div>
       )}
+      {/* conversation list of people and group */}
 
       <div className="flex-1 overflow-y-auto p-2">
         {!isLoaded || (user && !convexUser) ? (
@@ -220,27 +221,47 @@ export function ConversationList({
             No conversations yet. Start a chat or create a group above.
           </p>
         ) : (
-          <ul className="space-y-1">
-            {conversations
-              .filter((c): c is NonNullable<typeof c> => c != null)
-              .map((conv) => (
-                <li key={conv._id}>
-                  <button
-                    type="button"
-                    onClick={() => onSelect?.(conv._id)}
-                    className={cn(
-                      "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
-                      selectedId === conv._id
-                        ? "bg-indigo-100 text-indigo-800 font-medium"
-                        : "text-gray-700 hover:bg-gray-100",
-                    )}
-                    aria-label={`Open ${conv.name ?? (conv.isGroup ? "Group" : "Chat")}`}
-                  >
-                    {conv.name ?? (conv.isGroup ? "Group" : "Chat")}
-                  </button>
-                </li>
-              ))}
-          </ul>
+  <ul className="space-y-1">
+  {conversations
+    ?.filter(
+      (conv): conv is NonNullable<typeof conv> =>
+        conv !== null
+    )
+    .map((conv) => (
+      <li key={conv._id}>
+        <button
+          type="button"
+          className="w-full text-left rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100"
+          onClick={() => onSelect?.(conv._id)}
+        >
+          <div className="flex justify-between items-center">
+            <span>
+              {conv.isGroup
+                ? conv.name
+                : conv.otherUser?.name}
+            </span>
+
+            {conv.isGroup ? (
+              <span className="text-xs text-gray-500">
+                {conv.onlineCount} online
+              </span>
+            ) : conv.isOnline ? (
+              <span className="text-xs text-green-500">
+                ● Online
+              </span>
+            ) : (
+              <span className="text-xs text-gray-400">
+                {conv.otherUser?.lastSeen &&
+                  formatLastSeen(
+                    conv.otherUser.lastSeen
+                  )}
+              </span>
+            )} 
+          </div>
+        </button>
+      </li>
+    ))}
+</ul>
         )}
       </div>
     </div>
