@@ -22,7 +22,7 @@ export function DashboardClient() {
         setOnlineStatus();  
     },20000);
     return ()=>clearInterval(interval);
-  },[])
+  },[setOnlineStatus])
   const handleSelect = (id: Id<"conversations">) => {
     setSelectedId(id);
     setShowChat(true);

@@ -19,7 +19,6 @@ interface ConversationListProps {
  * and creates a 1:1 conversation. "New group" creates a group with selected members.
  */
 export function ConversationList({
-  selectedId,
   onSelect,
   className,
 }: ConversationListProps) {
