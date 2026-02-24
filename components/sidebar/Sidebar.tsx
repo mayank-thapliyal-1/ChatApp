@@ -13,6 +13,7 @@ interface SidebarProps {
  * or other nav. Responsive: hidden on mobile when chat is full screen.
  */
 export function Sidebar({ className, children }: SidebarProps) {
+  // const username = 
   return (
     <aside
       className={cn(
@@ -21,7 +22,7 @@ export function Sidebar({ className, children }: SidebarProps) {
       )}
     >
       <div className="p-3 border-b border-gray-200 flex items-center justify-between">
-        <span className="font-semibold text-gray-800">Chat</span>
+        <span className="font-semibold text-gray-800">{}</span>
         <UserButton
           afterSignOutUrl="/"
           appearance={{

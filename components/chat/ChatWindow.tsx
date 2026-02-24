@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MessageBubble } from "@/components/chat/MessageBubble";
-import {  useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatWindowProps {
   conversationId?: Id<"conversations"> | null;
@@ -19,10 +19,16 @@ interface ChatWindowProps {
  */
 export function ChatWindow({ conversationId, className }: ChatWindowProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [activeMessageId, setActiveMessageId] = useState<Id<"messages"> | null>(
+    null,
+  );
   const [text, setText] = useState("");
   const { user, isLoaded } = useUser();
   const setTyping = useMutation(api.typing.setTyping);
-  const typingUsers = useQuery(api.typing.getTypingUsers,  conversationId ? {conversationId}:"skip",);
+  const typingUsers = useQuery(
+    api.typing.getTypingUsers,
+    conversationId ? { conversationId } : "skip",
+  );
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const convexUser = useQuery(
     api.users.getByClerkId,
@@ -33,9 +39,9 @@ export function ChatWindow({ conversationId, className }: ChatWindowProps) {
     conversationId ? { conversationId } : "skip",
   );
 
-useEffect(() => {
-  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-}, [messages]); // messages = array of current conversation messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]); // messages = array of current conversation messages
   const handleTyping = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
     if (!conversationId || !convexUser?._id) return;
@@ -67,7 +73,9 @@ useEffect(() => {
   return (
     <div className={`flex flex-col h-full  ${className ?? ""}`}>
       <header className="shrink-0 border-b border-gray-200 px-4 py-3">
-        <p className="font-medium text-gray-800">{ConversationName ?? "Chat"} </p>
+        <p className="font-medium text-gray-800">
+          {ConversationName ?? "Chat"}{" "}
+        </p>
       </header>
       <div className="flex-1 flex flex-col justify-between overflow-y-auto p-4 space-y-2 bg-amber-100/25">
         {messages === undefined ? (
@@ -78,24 +86,30 @@ useEffect(() => {
             description="Send a message to start the conversation."
           />
         ) : (
-          <div className="flex flex-col gap-3 h-full overflow-y-scroll   ">
+          <div className="flex flex-col gap-5 h-full overflow-y-scroll   ">
             {messages.map((msg) => (
-              <MessageBubble
-                key={msg._id}
-                messageId={msg._id} 
-                content={msg.content}
-                isOwn={convexUser?._id === msg.senderId}
-                timeStamp={msg._creationTime}
-              />
+              convexUser?._id && (
+                <MessageBubble
+                  key={msg._id}
+                  messageId={msg._id}
+                  content={msg.content}
+                  isOwn={convexUser._id === msg.senderId}
+                  timeStamp={msg._creationTime}
+                  activeMessageId={activeMessageId}
+                  setActiveMessageId={setActiveMessageId}
+                  currentUserId={convexUser._id}
+                  reactions={msg.reactions}
+                />
+              )
             ))}
             <div>
-               {typingUsers
-          ?.filter((u) => u.userId !== convexUser?._id)
-          .map((u) => (
-            <p key={u._id}>{u.user?.name ?? "someone"} is typing...</p>
-          ))}
+              {typingUsers
+                ?.filter((u) => u.userId !== convexUser?._id)
+                .map((u) => (
+                  <p key={u._id}>{u.user?.name ?? "someone"} is typing...</p>
+                ))}
             </div>
-             <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} />
           </div>
         )}
         <div className="w-full flex gap-3 items-center px-5">
