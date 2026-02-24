@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -8,12 +8,12 @@ interface SidebarProps {
   children?: React.ReactNode;
 }
 
-/**
- * Left sidebar: user avatar/name (Clerk), and slot for conversation list
- * or other nav. Responsive: hidden on mobile when chat is full screen.
- */
 export function Sidebar({ className, children }: SidebarProps) {
-  // const username = 
+  const { user, isLoaded } = useUser();
+
+  const username =
+    user?.fullName ?? user?.firstName ?? "User";
+
   return (
     <aside
       className={cn(
@@ -22,7 +22,10 @@ export function Sidebar({ className, children }: SidebarProps) {
       )}
     >
       <div className="p-3 border-b border-gray-200 flex items-center justify-between">
-        <span className="font-semibold text-gray-800">{}</span>
+        <span className="font-semibold text-gray-800">
+          {isLoaded ? username : "Loading..."}
+        </span>
+
         <UserButton
           afterSignOutUrl="/"
           appearance={{
@@ -32,7 +35,10 @@ export function Sidebar({ className, children }: SidebarProps) {
           }}
         />
       </div>
-      <div className="flex-1 overflow-hidden">{children}</div>
+
+      <div className="flex-1 overflow-hidden">
+        {children}
+      </div>
     </aside>
   );
 }
