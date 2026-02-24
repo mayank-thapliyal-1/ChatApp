@@ -38,11 +38,19 @@ export function ConversationList({
     api.conversations.listForUser,
     convexUser?._id ? { userId: convexUser._id } : "skip",
   );
+  const unreadCounts =
+    useQuery(
+      api.conversationReads.getUnreadCounts,
+      convexUser?._id ? { userId: convexUser._id } : "skip",
+    ) ?? {};
   const otherUsers = useQuery(
     api.users.listOthers,
     convexUser?._id
       ? { excludeUserId: convexUser._id, search: searchTerm || undefined }
       : "skip",
+  );
+  const updateLastReadMessage = useMutation(
+    api.conversationReads.updateLastReadMessage,
   );
   const createDirect = useMutation(api.conversations.createDirectConversation);
   const createGroup = useMutation(api.conversations.createGroupConversation);
@@ -221,47 +229,53 @@ export function ConversationList({
             No conversations yet. Start a chat or create a group above.
           </p>
         ) : (
-  <ul className="space-y-1">
-  {conversations
-    ?.filter(
-      (conv): conv is NonNullable<typeof conv> =>
-        conv !== null
-    )
-    .map((conv) => (
-      <li key={conv._id}>
-        <button
-          type="button"
-          className="w-full text-left rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100"
-          onClick={() => onSelect?.(conv._id)}
-        >
-          <div className="flex justify-between items-center">
-            <span>
-              {conv.isGroup
-                ? conv.name
-                : conv.otherUser?.name}
-            </span>
+          <ul className="space-y-1">
+            {conversations
+              ?.filter(
+                (conv): conv is NonNullable<typeof conv> => conv !== null,
+              )
+              .map((conv) => (
+                <li key={conv._id}>
+                  <button
+                    type="button"
+                    className="w-full text-left rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100"
+                    onClick={async () => {
+                      onSelect?.(conv._id); // existing function to open conversation
 
-            {conv.isGroup ? (
-              <span className="text-xs text-gray-500">
-                {conv.onlineCount} online
-              </span>
-            ) : conv.isOnline ? (
-              <span className="text-xs text-green-500">
-                ● Online
-              </span>
-            ) : (
-              <span className="text-xs text-gray-400">
-                {conv.otherUser?.lastSeen &&
-                  formatLastSeen(
-                    conv.otherUser.lastSeen
-                  )}
-              </span>
-            )} 
-          </div>
-        </button>
-      </li>
-    ))}
-</ul>
+                      // 1️⃣ Mark all messages as read for this user
+                      await updateLastReadMessage({
+                        conversationId: conv._id,
+                        userId: convexUser!._id, // current logged-in user
+                      });
+                    }}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>
+                        {conv.isGroup ? conv.name : conv.otherUser?.name}
+                      </span>
+
+                      {conv.isGroup ? (
+                        <span className="text-xs text-gray-500">
+                          {conv.onlineCount} online
+                        </span>
+                      ) : conv.isOnline ? (
+                        <span className="text-xs text-green-500">● Online</span>
+                      ) : (
+                        <span className="text-xs text-gray-400">
+                          {conv.otherUser?.lastSeen &&
+                            formatLastSeen(conv.otherUser.lastSeen)}
+                        </span>
+                      )}
+                      {unreadCounts[conv._id] > 0 && (
+                        <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-indigo-500 rounded-full">
+                          {unreadCounts[conv._id]}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                </li>
+              ))}
+          </ul>
         )}
       </div>
     </div>

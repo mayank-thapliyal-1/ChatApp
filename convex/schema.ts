@@ -25,6 +25,20 @@ export default defineSchema({
     members: v.array(v.id("users")),
     lastMessageId: v.optional(v.id("messages")),
   }).index("by_member", ["members"]),
+  
+  conversationReads: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.id("users"),
+    lastReadMessageId: v.optional(v.id("messages")),
+  })
+    .index("by_user", ["userId"])
+    .index("by_conversation", ["conversationId"]),
+
+  typing: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.id("users"),
+    isTyping: v.boolean(),
+  }).index("by_conversation", ["conversationId"]),
 
   // Junction table for scalable "list conversations for user" (index by userId).
   conversationMembers: defineTable({
@@ -39,15 +53,13 @@ export default defineSchema({
     senderId: v.id("users"),
     content: v.string(),
     isDeleted: v.boolean(),
-reactions: v.optional(
-  v.array(
-    v.object({
-      emojiIndex: v.number(),  // 0 = 👍, 1 = ❤️, etc.
-      userId: v.id("users")   // who reacted
-    })
-  )
-),
-
-  })
-    .index("by_conversation", ["conversationId"])
+    reactions: v.optional(
+      v.array(
+        v.object({
+          emojiIndex: v.number(), // 0 = 👍, 1 = ❤️, etc.
+          userId: v.id("users"), // who reacted
+        }),
+      ),
+    ),
+  }).index("by_conversation", ["conversationId"]),
 });

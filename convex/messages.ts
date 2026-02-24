@@ -44,6 +44,8 @@ async function getCurrentUserId(ctx: MutationCtx): Promise<Id<"users"> | null> {
 export const SendMessage = mutation({
   args: { conversationId: v.id("conversations"), content: v.string() },
   handler: async (ctx, args) => {
+    if(args.content.trim()==="")
+      return;
     const senderId = await getCurrentUserId(ctx);
     if (!senderId) throw new Error("User not authenticated");
     await ctx.db.insert("messages", {

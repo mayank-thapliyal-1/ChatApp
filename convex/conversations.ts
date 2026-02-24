@@ -3,6 +3,37 @@ import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 
+/** Get Convex user id for the currently authenticated user (Clerk). */
+async function getCurrentUserId(ctx: MutationCtx): Promise<Id<"users"> | null> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity?.subject) return null;
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_clerk_id", (q: any) => q.eq("clerkId", identity.subject))
+    .unique();
+  return user?._id ?? null;
+}
+
+function requireCurrentUserId(ctx: MutationCtx): Promise<Id<"users">> {
+  return getCurrentUserId(ctx).then((id) => {
+    if (id) return id;
+    throw new Error(
+      "You must be signed in and your profile must be synced. Try refreshing the page and starting a chat again.",
+    );
+  });
+}
+
+async function getCurrentUserIdQuery(ctx: any): Promise<Id<"users"> | null> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity?.subject) return null;
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_clerk_id", (q: any) => q.eq("clerkId", identity.subject))
+    .unique();
+  return user?._id ?? null;
+}
+
+
 /**
  * List conversations for a user using the conversationMembers index (scalable).
  * Run backfillConversationMembers once if you have existing conversations.
@@ -97,27 +128,33 @@ export const listForUser = query({
     return results;
   },
 });
-
-
-/** Get Convex user id for the currently authenticated user (Clerk). */
-async function getCurrentUserId(ctx: MutationCtx): Promise<Id<"users"> | null> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity?.subject) return null;
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-    .unique();
-  return user?._id ?? null;
-}
-
-function requireCurrentUserId(ctx: MutationCtx): Promise<Id<"users">> {
-  return getCurrentUserId(ctx).then((id) => {
-    if (id) return id;
-    throw new Error(
-      "You must be signed in and your profile must be synced. Try refreshing the page and starting a chat again.",
+// get conversation member name chatwindow header 
+export const getName = query({
+  args:{conversationId: v.id("conversations")},
+  handler: async(ctx,args)=>{
+    const conversation = await ctx.db.get(args.conversationId);
+    if(!conversation) throw new Error("Conversation not found");
+    if(conversation.isGroup)
+    return conversation.name;
+  // If 1-to-1 → find the other user
+  const currentUserId = await getCurrentUserIdQuery(ctx);
+    if (!currentUserId) {
+      throw new Error("You must be signed in and your profile must be synced. Try refreshing the page and starting a chat again.");
+    }
+    const otherUserId = conversation.members.find(
+      (memberId) => memberId !== currentUserId,
     );
-  });
-}
+
+    if (!otherUserId) {
+      throw new Error("Other user not found");
+    }
+
+    const otherUser = await ctx.db.get(otherUserId);
+
+    return otherUser?.name;
+  },
+});
+
 
 /**
  * Create a 1:1 conversation with another user. Idempotent: if a direct chat

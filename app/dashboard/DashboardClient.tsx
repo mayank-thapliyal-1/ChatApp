@@ -45,7 +45,7 @@ export function DashboardClient() {
         className={
           showChat
             ? "flex flex-1 min-w-0 flex-col bg-white"
-            : "hidden md:flex flex-1 min-w-0 flex-col bg-white"
+            : "hidden md:flex flex-1 min-w-0 flex-col bg-white overflow-x-auto"
         }
       >
         {showChat && (
@@ -57,7 +57,7 @@ export function DashboardClient() {
             ← Back to conversations
           </button>
         )}
-        <ChatWindow conversationId={selectedId} className="flex-1 min-h-0" />
+        <ChatWindow conversationId={selectedId} className="flex-1 min-h-0 overflow-y-auto" />
       </div>
     </>
   );
