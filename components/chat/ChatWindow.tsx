@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 interface ChatWindowProps {
   conversationId?: Id<"conversations"> | null;
   className?: string;
+  showChat?: boolean;
 }
 
 /**
@@ -71,13 +72,13 @@ export function ChatWindow({ conversationId, className }: ChatWindowProps) {
   }
 
   return (
-    <div className={`flex flex-col h-full  ${className ?? ""}`}>
+    <div className={`flex flex-col h-full  mt-12 md:mt-0  ${className ?? ""}`}>
       <header className="shrink-0 border-b border-gray-200 px-4 py-3">
         <p className="font-medium text-gray-800">
           {ConversationName ?? "Chat"}{" "}
         </p>
       </header>
-      <div className="flex-1 flex flex-col justify-between overflow-y-auto p-4 space-y-2 bg-amber-100/25">
+      <div className="flex-1 flex flex-col  overflow-y-auto pb-4 space-y-2 bg-amber-100/25">
         {messages === undefined ? (
           <p className="text-sm text-gray-500">Loading messages…</p>
         ) : messages.length === 0 ? (
@@ -86,7 +87,7 @@ export function ChatWindow({ conversationId, className }: ChatWindowProps) {
             description="Send a message to start the conversation."
           />
         ) : (
-          <div className="flex flex-col gap-5 h-full overflow-y-scroll   ">
+          <div className="flex flex-col gap-5 h-[82vh] md:h-full overflow-y-scroll p-4    ">
             {messages.map((msg) => (
               convexUser?._id && (
                 <MessageBubble

@@ -8,32 +8,35 @@ import { ChatWindow } from "@/components/chat/ChatWindow";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-
 /**
  * Client wrapper for dashboard: holds selected conversation id and
  * responsive visibility (mobile shows list or chat full screen).
  */
 export function DashboardClient() {
-  const [selectedId, setSelectedId] = useState<Id<"conversations"> | null>(null);
+  const [selectedId, setSelectedId] = useState<Id<"conversations"> | null>(
+    null,
+  );
   const [showChat, setShowChat] = useState(false);
   const setOnlineStatus = useMutation(api.users.setOnlineStatus);
-  useEffect(()=>{
-    const interval = setInterval(()=>{
-        setOnlineStatus();  
-    },20000);
-    return ()=>clearInterval(interval);
-  },[setOnlineStatus])
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOnlineStatus();
+    }, 20000);
+    return () => clearInterval(interval);
+  }, [setOnlineStatus]);
   const handleSelect = (id: Id<"conversations">) => {
     setSelectedId(id);
     setShowChat(true);
   };
 
   return (
-    <>
+    <div className="flex flex-1 min-w-0">
       {/* Sidebar: desktop always; mobile only when list view */}
       <div
         className={
-          showChat ? "hidden md:flex md:w-80 md:max-w-[320px] shrink-0 flex-col" : "flex flex-col w-full md:w-80 md:max-w-[320px] shrink-0"
+          showChat
+            ? "hidden md:flex md:w-80 md:max-w-[320px] shrink-0 flex-col"
+            : "flex flex-col w-full md:w-80 md:max-w-[320px] shrink-0"
         }
       >
         <Sidebar className="h-full border-r border-gray-200 bg-white">
@@ -45,20 +48,25 @@ export function DashboardClient() {
         className={
           showChat
             ? "flex flex-1 min-w-0 flex-col bg-white"
-            : "hidden md:flex flex-1 min-w-0 flex-col bg-white overflow-x-auto"
+            : "hidden md:flex flex-1 min-w-0 flex-col bg-white "
         }
       >
         {showChat && (
-          <button
-            type="button"
-            onClick={() => setShowChat(false)}
-            className="md:hidden p-3 border-b border-gray-200 text-left text-sm text-indigo-600 hover:bg-gray-50"
-          >
-            ← Back to conversations
-          </button>
+       
+            <button
+              type="button"
+              onClick={() => setShowChat(false)}
+              className="md:hidden p-3 border-b border-gray-200 text-left text-sm text-indigo-600 hover:bg-gray-50 fixed w-full z-10 bg-white"
+            >
+              ← Back to conversations
+            </button>
         )}
-        <ChatWindow conversationId={selectedId} className="flex-1 min-h-0 overflow-y-auto" />
+        <ChatWindow
+          conversationId={selectedId}
+          showChat={showChat}
+          className="flex-1 min-h-0 "
+        />
       </div>
-    </>
+    </div>
   );
 }
