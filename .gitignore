@@ -17,7 +17,7 @@ dist
 .env.production.local
 
 # Convex
-convex/_generated
+# convex/_generated
 
 # Debug / IDE
 npm-debug.log*
