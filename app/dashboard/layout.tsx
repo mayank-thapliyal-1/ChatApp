@@ -10,7 +10,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen flex flex-col md:flex-row bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col md:flex-row  overflow-hidden">
       <DashboardClient />
       {children}
     </div>

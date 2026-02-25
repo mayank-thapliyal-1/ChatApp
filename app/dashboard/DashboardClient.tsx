@@ -39,7 +39,7 @@ export function DashboardClient() {
             : "flex flex-col w-full md:w-80 md:max-w-[320px] shrink-0"
         }
       >
-        <Sidebar className="h-full border-r border-gray-200 bg-white">
+        <Sidebar className="h-full border-r border-gray-200 ">
           <ConversationList selectedId={selectedId} onSelect={handleSelect} />
         </Sidebar>
       </div>
@@ -64,7 +64,7 @@ export function DashboardClient() {
         <ChatWindow
           conversationId={selectedId}
           showChat={showChat}
-          className="flex-1 min-h-0 "
+          className="bg-slate-300  "
         />
       </div>
     </div>

@@ -54,7 +54,6 @@ export function ConversationList({
   const createDirect = useMutation(api.conversations.createDirectConversation);
   const createGroup = useMutation(api.conversations.createGroupConversation);
   const handleStartDirect = async (otherUserId: Id<"users">) => {
-    console.log(otherUserId);
     if (!convexUser?._id || !onSelect) return;
     try {
       const conversationId = await createDirect({ otherUserId });
@@ -91,9 +90,9 @@ export function ConversationList({
   };
 
   return (
-    <div className={cn("flex flex-col h-full overflow-hidden", className)}>
-      <div className="p-3 border-b border-gray-200 space-y-2">
-        <h2 className="font-semibold text-gray-800">Conversations</h2>
+    <div className={cn("flex flex-col h-full bg-slate-400 overflow-hidden", className)}>
+      <div className="p-3 border-b border-gray-200 dark:bg-slate-800 bg-slate-500 space-y-2">
+        <h2 className="font-semibold dark:text-white text-gray-800">Conversations</h2>
         <div className="flex gap-2">
           <button
             type="button"
@@ -111,7 +110,7 @@ export function ConversationList({
               setShowNewGroup(true);
               setShowNewChat(false);
             }}
-            className="flex-1 rounded-lg bg-gray-200 px-3 py-1.5 text-sm text-gray-800 hover:bg-gray-300"
+            className="flex-1 rounded-lg bg-gray-200 px-3 py-1.5 text-sm text-gray-800 hover:bg-gray-400"
           >
             New group
           </button>
@@ -139,7 +138,7 @@ export function ConversationList({
                     key={u._id}
                     type="button"
                     onClick={() => handleStartDirect(u._id)}
-                    className="w-full text-left rounded-lg px-3 py-2 text-sm bg-white border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200"
+                    className="w-full text-left rounded-lg px-3 py-2 text-sm bg-white border border-gray-200 dark:hover:bg-indigo-900 hover:bg-indigo-50 hover:border-indigo-200"
                   >
                     <span className="font-medium text-gray-800">{u.name}</span>
                     <span className="text-gray-500 text-xs block truncate">
@@ -164,7 +163,7 @@ export function ConversationList({
 
       {/* New group: name + member selection */}
       {showNewGroup && (
-        <div className="p-2 border-b border-gray-200 bg-gray-50 space-y-2">
+        <div className="p-2 border-b border-gray-200 bg-gray-100 space-y-2">
           <input
             type="text"
             placeholder="Group name"
@@ -179,7 +178,7 @@ export function ConversationList({
               .map((u) => (
                 <label
                   key={u._id}
-                  className="flex items-center gap-2 rounded-lg px-3 py-1.5 hover:bg-white/80 cursor-pointer"
+                  className="flex items-center gap-2 rounded-lg px-3 py-1.5 hover:bg-slate-200 cursor-pointer"
                 >
                   <input
                     type="checkbox"
@@ -216,7 +215,7 @@ export function ConversationList({
       )}
       {/* conversation list of people and group */}
 
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex-1 overflow-y-auto p-2 dark:bg-slate-900">
         {!isLoaded || (user && !convexUser) ? (
           <p className="text-sm text-gray-500 px-2 py-4">Loading…</p>
         ) : !conversations ? (
@@ -237,7 +236,7 @@ export function ConversationList({
                 <li key={conv._id}>
                   <button
                     type="button"
-                    className="w-full text-left rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100"
+                    className="w-full text-left rounded-lg px-3 py-2 text-sm transition-colors dark:hover:bg-slate-400 hover:bg-gray-300"
                     onClick={async () => {
                       onSelect?.(conv._id); // existing function to open conversation
 
@@ -258,9 +257,9 @@ export function ConversationList({
                           {conv.onlineCount} online
                         </span>
                       ) : conv.isOnline ? (
-                        <span className="text-xs text-green-500">● Online</span>
+                        <span className="text-xs dark:text-green-400 text-green-700">● Online</span>
                       ) : (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-500">
                           {conv.otherUser?.lastSeen &&
                             formatLastSeen(conv.otherUser.lastSeen)}
                         </span>

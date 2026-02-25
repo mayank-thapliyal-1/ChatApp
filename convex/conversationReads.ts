@@ -8,7 +8,10 @@ import { Id } from "./_generated/dataModel";
 export const updateLastReadMessage = mutation(
   async (
     { db },
-    { conversationId, userId }: { conversationId: Id<"conversations">; userId: Id<"users"> }
+    {
+      conversationId,
+      userId,
+    }: { conversationId: Id<"conversations">; userId: Id<"users"> },
   ) => {
     // Get all messages in this conversation
     const messages = await db
@@ -42,7 +45,7 @@ export const updateLastReadMessage = mutation(
         lastReadMessageId: lastMessage._id,
       });
     }
-  }
+  },
 );
 // ----------------------
 // 2️⃣ Query: Get unread counts
@@ -80,12 +83,13 @@ export const getUnreadCounts = query(
 
       // Count messages that came after last read
       const unreadCount = messages.filter(
-        (msg) => msg._creationTime > lastReadMessageTime
+        (msg) =>
+          msg._creationTime > lastReadMessageTime && msg.senderId !== userId,
       ).length;
 
       counts[m.conversationId] = unreadCount;
     }
 
     return counts; // { conversationId: unreadCount }
-  }
+  },
 );

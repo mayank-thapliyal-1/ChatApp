@@ -41,18 +41,22 @@ export const deleteMessage = mutation({
 })
 
 
-// For Sending a message in a conversation
+// For Sending a message in a conversation (optionally with an image)
 export const SendMessage = mutation({
-  args: { conversationId: v.id("conversations"), content: v.string() },
+  args: {
+    conversationId: v.id("conversations"),
+    content: v.string(),
+    imageUrl: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    if(args.content.trim()==="")
-      return;
+    if (args.content.trim() === "" && !args.imageUrl) return;
     const senderId = await getCurrentUserId(ctx);
     if (!senderId) throw new Error("User not authenticated");
     await ctx.db.insert("messages", {
       conversationId: args.conversationId,
       senderId: senderId,
       content: args.content,
+      imageUrl: args.imageUrl,
       isDeleted: false,
       reactions: [],
     });

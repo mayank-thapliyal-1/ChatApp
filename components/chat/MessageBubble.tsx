@@ -2,9 +2,11 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { useMutation } from "convex/react";
+
 interface MessageBubbleProps {
   messageId: Id<"messages">;
   content: string;
+  imageUrl?: string;
   isOwn?: boolean;
   timeStamp: number;
   className?: string;
@@ -21,6 +23,7 @@ interface MessageBubbleProps {
 export function MessageBubble({
   messageId,
   content,
+  imageUrl,
   isOwn = false,
   timeStamp,
   className,
@@ -43,21 +46,31 @@ export function MessageBubble({
     },
     {} as Record<number, number>,
   );
+  
   return (
     <div className="w-full flex">
       <div className={` ${isOwn ? "ml-auto" : "mr-auto"} relative max-w-[75%]`}>
         <div
           className={cn(
             "rounded-2xl px-4 py-2 text-sm flex flex-col gap-1",
-            isOwn ? "bg-indigo-600 text-white " : "bg-gray-200 text-gray-900",
+            isOwn
+              ? "bg-indigo-600 text-white dark:bg-indigo-500"
+              : "bg-gray-200 text-gray-900 dark:bg-slate-700 dark:text-slate-50",
             className,
           )}
           onClick={() =>
             setActiveMessageId(activeMessageId === messageId ? null : messageId)
           }
         >
-          <p> {content}</p>
-          <span className="w-full text-end text-xs font-extralight ">
+          {content && <p>{content}</p>}
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt="Sent image"
+              className="mt-1 rounded-xl max-h-64 w-full object-cover border border-white/10"
+            />
+          )}
+          <span className="w-full text-end text-xs font-extralight">
             {formattedTime}
           </span>
         </div>

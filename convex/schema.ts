@@ -53,6 +53,7 @@ export default defineSchema({
     senderId: v.id("users"),
     content: v.string(),
     isDeleted: v.boolean(),
+    imageUrl: v.optional(v.string()),
     reactions: v.optional(
       v.array(
         v.object({

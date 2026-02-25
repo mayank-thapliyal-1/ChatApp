@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,8 +27,8 @@ export default function RootLayout({
 
   if (!hasClerkKey || !hasConvexUrl) {
     return (
-      <html lang="en">
-        <body className="antialiased min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center p-6">
+      <html lang="en" suppressHydrationWarning>
+        <body className="antialiased min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-50 flex items-center justify-center p-6">
           <p className="text-gray-600 text-center">
             Copy <code className="bg-gray-200 px-1 rounded">.env.example</code> to{" "}
             <code className="bg-gray-200 px-1 rounded">.env.local</code> and set
@@ -41,9 +42,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <ConvexClientProvider>
-        <html lang="en">
-          <body className="antialiased min-h-screen bg-gray-50 text-gray-900">
-            {children}
+        <html lang="en" suppressHydrationWarning>
+          <body className="antialiased min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-50">
+            <ThemeProvider>{children}</ThemeProvider>
           </body>
         </html>
       </ConvexClientProvider>
